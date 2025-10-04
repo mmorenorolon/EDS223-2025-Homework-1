@@ -62,14 +62,13 @@ names(ejscreen)[1:10]
 # Methods
 
 ```{r}
-#Example code
+#subset data into the Caguas Municipality in Puerto Rico
 
-# california <- ejscreen %>%
-#   dplyr::filter(ST_ABBREV == "CA")
-# 
-# santa_barbara <- california %>%
-#   dplyr::filter(CNTY_NAME == "Santa Barbara County")
+puerto_rico <- ejscreen %>%
+  dplyr::filter(ST_ABBREV == "PR")
 
+caguas <- puerto_rico %>%
+  dplyr::filter(CNTY_NAME == "Caguas Municipio")
 ```
 
 
