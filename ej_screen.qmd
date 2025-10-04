@@ -1,10 +1,14 @@
 ---
 title: "Homework 1: Map Making Practice"
 author: "Melannie Moreno Rolón"
-date: "10/6/2025"
+date: "2025-10-06"
 format: 
   pdf:
     code-fold: false
+    toc: true
+    number-sections: true
+    fig-width: 7
+    fig-height: 5
 editor: source
 editor_options: 
   chunk_output_type: console
@@ -14,23 +18,20 @@ editor_options:
 Name: `r params$author`
 Date: `r params$date`
 
+# Introduction: Exploring Environmental (In)justice
+
+This analysis explores environmental justice in the Caguas Municipality of Puerto Rico. Per US EPA's EJ Screen Tool, I visualized disparities in demographic vulnerability to
+
+# Data
+
 ```{r}
 #| label: load-packages
 # Load relevant packages
 library(sf)
 library(here)
 library(tidyverse)
+library(tmap)
 ```
-
-# Exploring Environmental (In)justice
-
-
-
-# Background
-
-
-
-# Data
 
 ```{r}
 #| label: load-database
@@ -42,7 +43,7 @@ gdb_path <- here("data", "ejscreen",
 ```{r}
 #| label: visualize-layers
 #See the layer name of the geodatabase
-st_layers(gdb_path)
+# st_layers(gdb_path)
 ```
 
 ```{r}
@@ -54,22 +55,60 @@ ejscreen <- st_read(gdb_path,
 
 ```{r}
 #testing that the code worked
-nrow(ejscreen)
-st_geometry_type(ejscreen)
-names(ejscreen)[1:10]
+st_crs(caguas)
+st_geometry_type(caguas)
 ```
 
-# Methods
+# Methods:
 
+## Create a Subset Data
 ```{r}
 #subset data into the Caguas Municipality in Puerto Rico
 
+#filter to Puerto Rico
 puerto_rico <- ejscreen %>%
   dplyr::filter(ST_ABBREV == "PR")
 
+#filter to Municipality: Caguas
 caguas <- puerto_rico %>%
   dplyr::filter(CNTY_NAME == "Caguas Municipio")
 ```
 
+##Explore Data
+```{r}
+names(caguas)[1:15]
+summary(caguas)
+```
 
-# Results
+# Map 1: Distribution of RMP Facilities in Caguas, PR
+
+```{r}
+tmap_mode("plot")
+
+tm_shape(caguas) +
+  tm_polygons("PRMP",
+              title = "Risk Management Plan (km)",
+              palette = "YlOrRd",
+              style = "quantile") +
+  tm_layout(main.title = "Distribution of RMP Facilities in Caguas, PR",
+            legend.outside = TRUE,
+            frame = FALSE)
+
+```
+
+# Map 2: Percentage of Low Income Communites in Caguas, PR
+
+```{r}
+tm_shape(caguas) +
+  tm_polygons("B_LOWINCPCT",
+              title = "Percent of Low Income Population (%)",
+              palette = "Blues",
+              style = "quantile") +
+  tm_layout(main.title = "Percentage of Low Income Communites in Caguas, PR",
+            legend.outside = TRUE,
+            frame = FALSE)
+
+```
+
+# Citation
+
