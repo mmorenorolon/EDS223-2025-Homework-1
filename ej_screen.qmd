@@ -100,7 +100,7 @@ tm_shape(caguas) +
 
 ```{r}
 tm_shape(caguas) +
-  tm_polygons("B_LOWINCPCT",
+  tm_polygons("LOWINCOME",
               title = "Percent of Low Income Population (%)",
               palette = "Blues",
               style = "quantile") +
@@ -112,3 +112,4 @@ tm_shape(caguas) +
 
 # Citation
 
+B_LOWINCPCT
