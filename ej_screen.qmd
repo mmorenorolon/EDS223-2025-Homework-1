@@ -1,5 +1,76 @@
 ---
-title: "ej_screen"
-format: html
+title: "Homework 1: Map Making Practice"
+author: "Melannie Moreno Rolón"
+date: "10/6/2025"
+format: 
+  pdf:
+    code-fold: false
+editor: source
+editor_options: 
+  chunk_output_type: console
 ---
 
+# Title: `r params$title`
+Name: `r params$author`
+Date: `r params$date`
+
+```{r}
+#| label: load-packages
+# Load relevant packages
+library(sf)
+library(here)
+library(tidyverse)
+```
+
+# Exploring Environmental (In)justice
+
+
+
+# Background
+
+
+
+# Data
+
+```{r}
+#| label: load-database
+# Read in the geodatabase
+gdb_path <- here("data", "ejscreen",
+                 "EJSCREEN_2023_BG_StatePct_with_AS_CNMI_GU_VI.gdb")
+```
+
+```{r}
+#| label: visualize-layers
+#See the layer name of the geodatabase
+st_layers(gdb_path)
+```
+
+```{r}
+#|label: read-layer
+#Read in the geodatabase from the identified layer name
+ejscreen <- st_read(gdb_path, 
+                    layer = "EJSCREEN_StatePctiles_with_AS_CNMI_GU_VI")
+```
+
+```{r}
+#testing that the code worked
+nrow(ejscreen)
+st_geometry_type(ejscreen)
+names(ejscreen)[1:10]
+```
+
+# Methods
+
+```{r}
+#Example code
+
+# california <- ejscreen %>%
+#   dplyr::filter(ST_ABBREV == "CA")
+# 
+# santa_barbara <- california %>%
+#   dplyr::filter(CNTY_NAME == "Santa Barbara County")
+
+```
+
+
+# Results
