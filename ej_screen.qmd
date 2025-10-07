@@ -2,114 +2,147 @@
 title: "Homework 1: Map Making Practice"
 author: "Melannie Moreno Rolón"
 date: "2025-10-06"
-format: 
-  pdf:
-    code-fold: false
-    toc: true
-    number-sections: true
-    fig-width: 7
-    fig-height: 5
+format:
+  html
 editor: source
-editor_options: 
-  chunk_output_type: console
+execute: 
+  warning: false
+  message: false
 ---
-
-# Title: `r params$title`
-Name: `r params$author`
-Date: `r params$date`
 
 # Introduction: Exploring Environmental (In)justice
 
-This analysis explores environmental justice in the Caguas Municipality of Puerto Rico. Per US EPA's EJ Screen Tool, I visualized disparities in demographic vulnerability to
+Environmental justice examines whether environmental burdens and benefits are distributed equitably across different communities. This analysis focuses on Puerto Rico’s metropolitan area using the U.S. EPA’s EJScreen (2023) dataset to explore disparities in exposure to toxic air pollution.
+
+The first variable, `P_LOWINCPCT`, represents the percentile rank of low-income populations across census block groups, where lower values indicate less economic vulnerability. The second variable, `D2_CANCER`, is the Air Toxics Cancer Risk Environmental Justice Index (EJ Index), which combines estimates of exposure to air toxics with demographic factors of vulnerability. By mapping both variables, this project seeks to identify whether low-income communities in Puerto Rico’s metropolitan area face disproportionate cancer risks associated with toxic air pollutants.
 
 # Data
 
 ```{r}
-#| label: load-packages
 # Load relevant packages
 library(sf)
 library(here)
 library(tidyverse)
 library(tmap)
+library(tinytex)
 ```
 
 ```{r}
-#| label: load-database
-# Read in the geodatabase
-gdb_path <- here("data", "ejscreen",
-                 "EJSCREEN_2023_BG_StatePct_with_AS_CNMI_GU_VI.gdb")
+# Read in the geodatabase of the EJScreen data at the Census Block Group level
+ejscreen <- st_read(here("data", "ejscreen",
+                 "EJSCREEN_2023_BG_StatePct_with_AS_CNMI_GU_VI.gdb"))
 ```
 
-```{r}
-#| label: visualize-layers
-#See the layer name of the geodatabase
-# st_layers(gdb_path)
-```
+# Methods
+
+To explore environmental justice in the Metropolitan area of Puerto Rico, the dataset was filtered to the EJScreen dataset for block groups within the relevant municipalities (San Juan, Cataño, Bayamón, Carolina, Guaynabo, and Trujillo Alto) and selected the variables related to low income block groups and Cancer Risk to Air Toxics. I then mapped these indicators to visualize spatial patterns of environmental health vulnerability.
 
 ```{r}
-#|label: read-layer
-#Read in the geodatabase from the identified layer name
-ejscreen <- st_read(gdb_path, 
-                    layer = "EJSCREEN_StatePctiles_with_AS_CNMI_GU_VI")
-```
+#Filter the dataset into metropolitan municipalities: San Juan, Cataño, Bayamón, Carolina, Guaynabo, and Trujillo Alto
 
-```{r}
-#testing that the code worked
-st_crs(caguas)
-st_geometry_type(caguas)
-```
-
-# Methods:
-
-## Create a Subset Data
-```{r}
-#subset data into the Caguas Municipality in Puerto Rico
-
-#filter to Puerto Rico
 puerto_rico <- ejscreen %>%
-  dplyr::filter(ST_ABBREV == "PR")
+  filter(ST_ABBREV == "PR")
 
-#filter to Municipality: Caguas
-caguas <- puerto_rico %>%
-  dplyr::filter(CNTY_NAME == "Caguas Municipio")
+metro <- puerto_rico %>% 
+  filter(CNTY_NAME %in% c("San Juan Municipio", 
+                                           "Cataño Municipio",
+                                           "Bayamón Municipio",
+                                           "Carolina Municipio",
+                                           "Guaynabo Municipio",
+                                           "Trujillo Alto Municipio"))
+  
 ```
 
-##Explore Data
+## Data Exploration
 ```{r}
-names(caguas)[1:15]
-summary(caguas)
+  #Summary Statistics: Percentile of low income percentage
+summary(metro$P_LOWINCPCT)
 ```
 
-# Map 1: Distribution of RMP Facilities in Caguas, PR
+```{r}
+  #summary Statistics: Air toxics cancer risk EJ Index
+summary(metro$D2_CANCER)
+```
+
+
+# Map 1: Percentile Ranking of Low Income Percentages in the Metropolitan Area of Puerto Rico
 
 ```{r}
 tmap_mode("plot")
-
-tm_shape(caguas) +
-  tm_polygons("PRMP",
-              title = "Risk Management Plan (km)",
-              palette = "YlOrRd",
-              style = "quantile") +
-  tm_layout(main.title = "Distribution of RMP Facilities in Caguas, PR",
-            legend.outside = TRUE,
-            frame = FALSE)
-
 ```
-
-# Map 2: Percentage of Low Income Communites in Caguas, PR
 
 ```{r}
-tm_shape(caguas) +
-  tm_polygons("LOWINCOME",
-              title = "Percent of Low Income Population (%)",
-              palette = "Blues",
-              style = "quantile") +
-  tm_layout(main.title = "Percentage of Low Income Communites in Caguas, PR",
-            legend.outside = TRUE,
-            frame = FALSE)
+#Show outline of the island, but with the extent of the study area
+tm_shape(puerto_rico, bbox = st_bbox(metro)) +
 
+  #Show borders of puerto rico
+  tm_borders(col = "gray60", lwd = 0.5) +
+
+# Show shape of the study area
+tm_shape(metro) +
+  
+  #Show latitude and longitude lines
+  tm_graticules(col = "gray40") + 
+  
+  #Show low income percentile data 
+  tm_polygons("P_LOWINCPCT", 
+              lwd = 0.5,
+              title = "Low Income Percentile (EJ Screen)",
+              palette = "Purples",
+              border.col = "black",
+              style = "quantile") +
+  
+  #Add the title, specify legend location, and specify if the map will have a frame
+  tm_layout(main.title = "Percentile of Low Income Block Groups in the Metropolitan Area of Puerto Rico",
+            legend.outside = TRUE,
+            frame = TRUE) +
+  
+  #Add a scale bar
+  tm_scale_bar(position = c(0.6,0.1)) +
+  
+  #Add a compass
+  tm_compass(type = "arrow", size = 1.5, position = c(0, 0.99))
 ```
+
+# Map 2: EJ Index of Cancer Risk to Toxic Air Pollutants
+
+```{r}
+#Show outline of the island, but with the extent of the study area
+tm_shape(puerto_rico, bbox = st_bbox(metro)) +
+
+  #Show borders of puerto rico
+  tm_borders(col = "gray60", lwd = 0.5) +
+
+# Show shape of the study area
+tm_shape(metro) +
+  
+  #Show latitude and longitude lines
+  tm_graticules(col = "gray40") +
+  
+  #Show Cancer Risk to Air Toxics data
+  tm_polygons("D2_CANCER",
+              lwd = 0.5,
+              title = "Air Toxics Cancer Risk (EJ Index)",
+              palette = "brewer.yl_or_rd",
+              border.col = "black",
+              style = "quantile") +
+  
+  #Add title, legend location and specify if the map will have a frame
+  tm_layout(main.title = "Lifetime Cancer Risk From Inhalation of Air Toxics",
+            legend.outside = TRUE,
+            frame = TRUE) +
+  
+  #Add a scale bar
+  tm_scale_bar(position = c(0.63,0.079)) +
+  
+  #Add a compass
+  tm_compass(type = "arrow", size = 1.5, position = c(0, 0.99))
+```
+
+# Interpretation
+
+This project explored environmental injustice across six municipalities in Puerto Rico by examining the relationship between low-income communities and cancer risk from air toxics. The first map displays the percentile of low-income populations (P_LOWINCPCT), while the second highlights block groups with higher Environmental Justice Index scores for cancer risk associated with air toxics (D2_CANCER). When compared, the maps indicate that areas with higher low-income percentiles often coincide with those facing elevated cancer risk. This finding suggests that economically disadvantaged communities may experience greater exposure to harmful air pollutants. Together, these maps underscore how socioeconomic vulnerability and environmental health risks intersect across the most densely populated region of the island. Further analysis on this issue may examine whether communities of higher proportions of people of color also face greater cancer risk from toxic air pollutants. This could shed light on how ethnic background and income shapes environmental health injustice in this region.
 
 # Citation
 
-B_LOWINCPCT
+U.S. Environmental Protection Agency. (2023). EJScreen: Environmental Justice Screening and Mapping Tool (Version 2.1) [Data set]. U.S. Environmental Protection Agency. https://www.epa.gov/ejscreen
