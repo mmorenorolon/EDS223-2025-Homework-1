@@ -6,10 +6,10 @@ This repository contains the workflow, data, and outputs for Homework 1 of EDS 2
 
 ## Repository Contents
 
-- data/ (contains the ejscreen geodatabase used for the assignment)
+- data/ (Contains the ejscreen geodatabase used for the assignment)
 - ej_screen.qmd  (Quarto document with the code and interpretation)
 - ej_screen.pdf (Rendered PDF output of Quarto document with maps and conclusions)
-- README.md (this file)
+- README.md (This file)
 - LICENSE (MIT License)
 
 ## Data Access
