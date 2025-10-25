@@ -1,5 +1,5 @@
 ---
-title: "Homework 1: Map Making Practice"
+title: "Disparities in Air Toxic Cancer Risk Across Low-Income Communities in the Puerto Rico Metro Area"
 author: "Melannie Moreno Rolón"
 date: "2025-10-06"
 format:
@@ -28,8 +28,9 @@ library(tinytex)
 ```
 
 ```{r}
-# Read in the geodatabase of the EJScreen data at the Census Block Group level
-ejscreen <- st_read(here("data", "ejscreen",
+#| message: false
+#| results: false
+ejscreen <- st_read(here("data", "ejscreen",# Read in the EJScreen data
                  "EJSCREEN_2023_BG_StatePct_with_AS_CNMI_GU_VI.gdb"))
 ```
 
@@ -55,12 +56,18 @@ metro <- puerto_rico %>%
 
 ## Data Exploration
 ```{r}
-  #Summary Statistics: Percentile of low income percentage
+#| message: false
+#| warning: false
+#| results: false
+#Summary Statistics: Percentile of low income percentage
 summary(metro$P_LOWINCPCT)
 ```
 
 ```{r}
-  #summary Statistics: Air toxics cancer risk EJ Index
+#| message: false
+#| warning: false
+#| results: false
+# Summary Statistics: Air toxics cancer risk EJ Index
 summary(metro$D2_CANCER)
 ```
 
@@ -87,7 +94,7 @@ tm_shape(metro) +
   #Show low income percentile data 
   tm_polygons("P_LOWINCPCT", 
               lwd = 0.5,
-              title = "Low Income Percentile (EJ Screen)",
+              title = "Low Income Percentile",
               palette = "Purples",
               border.col = "black",
               style = "quantile") +
@@ -95,13 +102,7 @@ tm_shape(metro) +
   #Add the title, specify legend location, and specify if the map will have a frame
   tm_layout(main.title = "Percentile of Low Income Block Groups in the Metropolitan Area of Puerto Rico",
             legend.outside = TRUE,
-            frame = TRUE) +
-  
-  #Add a scale bar
-  tm_scale_bar(position = c(0.6,0.1)) +
-  
-  #Add a compass
-  tm_compass(type = "arrow", size = 1.5, position = c(0, 0.99))
+            frame = TRUE)
 ```
 
 # Map 2: EJ Index of Cancer Risk to Toxic Air Pollutants
@@ -122,7 +123,7 @@ tm_shape(metro) +
   #Show Cancer Risk to Air Toxics data
   tm_polygons("D2_CANCER",
               lwd = 0.5,
-              title = "Air Toxics Cancer Risk (EJ Index)",
+              title = "Air Toxics Cancer Risk",
               palette = "brewer.yl_or_rd",
               border.col = "black",
               style = "quantile") +
@@ -130,13 +131,7 @@ tm_shape(metro) +
   #Add title, legend location and specify if the map will have a frame
   tm_layout(main.title = "Lifetime Cancer Risk From Inhalation of Air Toxics",
             legend.outside = TRUE,
-            frame = TRUE) +
-  
-  #Add a scale bar
-  tm_scale_bar(position = c(0.63,0.079)) +
-  
-  #Add a compass
-  tm_compass(type = "arrow", size = 1.5, position = c(0, 0.99))
+            frame = TRUE)
 ```
 
 # Interpretation
